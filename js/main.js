@@ -10,21 +10,19 @@ class Producto {
   }
 }
 
-// Productos por defecto si todavia no hay nada en el storage
-const productosIniciales = [
+// Datos base de la tienda
+const productosBase = [
   new Producto(1, "Remera", 15000, 10),
   new Producto(2, "Pantalon", 28000, 8),
   new Producto(3, "Zapatillas", 45000, 5),
   new Producto(4, "Buzo", 32000, 6)
 ];
 
-// 2. PERSISTENCIA: Inicializacion con Storage y Operador Nullish Coalescing (??)
-// Si hay datos en localStorage los parseamos, si no, usamos los iniciales
-const productosGuardados = JSON.parse(localStorage.getItem("catalogoProductos"));
-let productos = productosGuardados ?? productosIniciales;
+// Variable global para almacenar los productos cargados
+let productos = [];
 
 // ==========================================
-// 3. REFERENCIAS AL DOM
+// 2. REFERENCIAS AL DOM
 // ==========================================
 const contenedorProductos = document.getElementById("contenedor-productos");
 const formularioProducto = document.getElementById("formulario-producto");
@@ -33,16 +31,70 @@ const inputPrecio = document.getElementById("precio");
 const inputStock = document.getElementById("stock");
 const inputBuscador = document.getElementById("buscador");
 const mensajeFeedback = document.getElementById("mensaje-feedback");
+const bannerAviso = document.getElementById("banner-aviso");
+const textoCargando = document.getElementById("texto-cargando");
 
 // ==========================================
-// 4. FUNCION DE GUARDADO EN STORAGE
+// 3. PERSISTENCIA EN STORAGE
 // ==========================================
 function guardarEnStorage() {
   localStorage.setItem("catalogoProductos", JSON.stringify(productos));
 }
 
 // ==========================================
-// 5. FUNCION DE RENDERIZADO (Con Destructuring)
+// 4. FUNCION ASINCRONA: PROMESA CON SETTIMEOUT
+// ==========================================
+// Simula la consulta a una base de datos o servidor remoto
+function pedirProductosServidor() {
+  return new Promise(function(resolve, reject) {
+    setTimeout(function() {
+      // Simulamos que la conexion responde bien
+      const conexionExitosa = true;
+
+      if (conexionExitosa) {
+        // Leemos del localStorage si ya habia algo, o devolvemos los datos base
+        const datosStorage = JSON.parse(localStorage.getItem("catalogoProductos"));
+        const resultado = datosStorage ?? productosBase;
+        resolve(resultado);
+      } else {
+        reject("Error de conexión: No se pudo obtener el catálogo.");
+      }
+    }, 2000); // Demora simulada de 2 segundos
+  });
+}
+
+// Consumo de la promesa con Async/Await y bloque Try-Catch-Finally
+async function inicializarCatalogo() {
+  try {
+    textoCargando.textContent = "Cargando productos...";
+    
+    // Esperamos la resolucion de la promesa
+    productos = await pedirProductosServidor();
+
+    guardarEnStorage();
+    renderizarProductos(productos);
+    mostrarFeedback("Catálogo cargado con éxito (" + productos.length + " productos)", "exito");
+  } catch (error) {
+    // Si la promesa se rechaza se captura aca
+    mostrarFeedback("No se pudo procesar la operación: " + error, "error");
+    contenedorProductos.innerHTML = "<p>Hubo un inconveniente al cargar los datos.</p>";
+  } finally {
+    // El bloque finally se ejecuta siempre al terminar la carga
+    textoCargando.style.display = "none";
+  }
+}
+
+// ==========================================
+// 5. TEMPORIZADOR INFORMATIVO (Aviso diferido)
+// ==========================================
+// Muestra una notificacion util unos segundos despues de entrar
+setTimeout(function() {
+  bannerAviso.textContent = "Cotización del día: Dólar Tarjeta $1.650 | 10% OFF pagando con Transferencia";
+  bannerAviso.classList.remove("oculto");
+}, 3000);
+
+// ==========================================
+// 6. RENDERIZADO EN PANTALLA
 // ==========================================
 function renderizarProductos(lista) {
   contenedorProductos.innerHTML = "";
@@ -53,7 +105,6 @@ function renderizarProductos(lista) {
   }
 
   for (const prod of lista) {
-    // Aplicamos DESTRUCTURING para extraer las propiedades del objeto
     const { id, nombre, precio, stock } = prod;
 
     const div = document.createElement("div");
@@ -70,87 +121,71 @@ function renderizarProductos(lista) {
   asignarEventosEliminar();
 }
 
-// ==========================================
-// 6. FEEDBACK VISUAL
-// ==========================================
 function mostrarFeedback(mensaje, tipo) {
   mensajeFeedback.textContent = mensaje;
-  // Operador ternario para asignar clase segun el tipo de mensaje
   mensajeFeedback.className = tipo === "exito" ? "mensaje exito" : "mensaje error";
 
   setTimeout(function() {
     mensajeFeedback.textContent = "";
     mensajeFeedback.className = "mensaje";
-  }, 3000);
+  }, 3500);
 }
 
 // ==========================================
-// 7. GESTION DE EVENTOS Y SINCRONIZACION
+// 7. EVENTOS DEL USUARIO
 // ==========================================
 
-// Evento Submit: Agregar producto
+// Agregar producto con manejo de errores try/catch
 formularioProducto.addEventListener("submit", function(e) {
   e.preventDefault();
 
-  const nombre = inputNombre.value.trim();
-  const precio = parseFloat(inputPrecio.value);
-  const stock = parseInt(inputStock.value);
+  try {
+    const nombre = inputNombre.value.trim();
+    const precio = parseFloat(inputPrecio.value);
+    const stock = parseInt(inputStock.value);
 
-  if (nombre !== "" && !isNaN(precio) && !isNaN(stock)) {
-    // Operador ternario para definir el proximo ID
+    if (nombre === "" || isNaN(precio) || isNaN(stock)) {
+      throw new Error("Datos inválidos ingresados en el formulario.");
+    }
+
     const nuevoId = productos.length > 0 ? productos[productos.length - 1].id + 1 : 1;
     const nuevoProducto = new Producto(nuevoId, nombre, precio, stock);
 
-    // 1. Actualizamos array
     productos.push(nuevoProducto);
-
-    // 2. Guardamos en localStorage
     guardarEnStorage();
-
-    // 3. Re-renderizamos vista
     renderizarProductos(productos);
 
     formularioProducto.reset();
     mostrarFeedback("¡Producto '" + nombre + "' agregado con éxito!", "exito");
-  } else {
-    mostrarFeedback("Por favor, completa todos los campos correctamente.", "error");
+  } catch (err) {
+    mostrarFeedback(err.message, "error");
   }
 });
 
-// Evento de Teclado: Buscador en vivo
+// Buscador en tiempo real
 inputBuscador.addEventListener("input", function() {
   const termino = inputBuscador.value.toLowerCase();
-  
-  const productosFiltrados = productos.filter(function(prod) {
+  const filtrados = productos.filter(function(prod) {
     return prod.nombre.toLowerCase().includes(termino);
   });
-
-  renderizarProductos(productosFiltrados);
+  renderizarProductos(filtrados);
 });
 
-// Evento Click: Eliminar producto
+// Eliminar producto
 function asignarEventosEliminar() {
   const botonesEliminar = document.querySelectorAll(".btn-eliminar");
 
   botonesEliminar.forEach(function(boton) {
     boton.addEventListener("click", function(e) {
       const idAEliminar = parseInt(e.target.getAttribute("data-id"));
-      
-      const indice = productos.findIndex(function(prod) {
-        return prod.id === idAEliminar;
+      const indice = productos.findIndex(function(p) {
+        return p.id === idAEliminar;
       });
 
       if (indice !== -1) {
-        // Destructuring del producto eliminado para usar su nombre en el mensaje
         const { nombre } = productos[indice];
-
-        // 1. Borramos del array
         productos.splice(indice, 1);
-
-        // 2. Sincronizamos con el storage
         guardarEnStorage();
-
-        // 3. Actualizamos pantalla
         renderizarProductos(productos);
         mostrarFeedback("Se eliminó '" + nombre + "'.", "error");
       }
@@ -159,8 +194,6 @@ function asignarEventosEliminar() {
 }
 
 // ==========================================
-// 8. INICIALIZACION
+// 8. INICIO DE LA APLICACION
 // ==========================================
-// Aseguramos persistencia inicial y renderizado al abrir o recargar
-guardarEnStorage();
-renderizarProductos(productos);
+inicializarCatalogo();
