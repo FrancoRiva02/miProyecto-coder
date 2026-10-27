@@ -1,12 +1,49 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simulador Tienda</title>
-  <script defer src="js/main.js"></script>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Tienda de Ropa - Simulador</title>
+ <link rel="stylesheet" href="css/style.css">
+ <script defer src="js/main.js"></script>
 </head>
 <body>
-  <h1>Tienda de Ropa</h1>
+ <header>
+ <h1>Tienda de Ropa</h1>
+ </header>
+ <main class="contenedor-principal">
+ <!-- Seccion para agregar nuevo producto -->
+ <section class="seccion-formulario">
+ <h2>Agregar Producto</h2>
+ <form id="formulario-producto">
+ <div class="campo">
+ <label for="nombre">Nombre:</label>
+ <input type="text" id="nombre" placeholder="Ej: Campera" required>
+ </div>
+ <div class="campo">
+ <label for="precio">Precio ($):</label>
+ <input type="number" id="precio" placeholder="Ej: 35000" min="1" required>
+ </div>
+ <div class="campo">
+ <label for="stock">Stock:</label>
+ <input type="number" id="stock" placeholder="Ej: 10" min="1" required>
+ </div>
+ <button type="submit" id="btn-agregar">+ Agregar Producto</button>
+ </form>
+ <!-- Mensaje de feedback visual -->
+ <p id="mensaje-feedback" class="mensaje"></p>
+ </section>
+ <!-- Seccion de busqueda y listado -->
+ <section class="seccion-catalogo">
+ <div class="barra-busqueda">
+ <label for="buscador">Buscar producto:</label>
+ <input type="text" id="buscador" placeholder="Escribi para filtrar...">
+ </div>
+ <h2>Catálogo de Productos</h2>
+ <div id="contenedor-productos" class="grilla-productos">
+ <!-- Aca se inyectan dinamicamente las tarjetas desde JS -->
+ </div>
+ </section>
+ </main>
 </body>
 </html>
