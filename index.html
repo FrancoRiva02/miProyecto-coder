@@ -4,20 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tienda de Ropa - Simulador</title>
+
+  <!-- CSS propio -->
   <link rel="stylesheet" href="./css/style.css">
+
+  <!-- Libreria Toastify JS por CDN -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js" defer></script>
+
+  <!-- Script principal con defer -->
   <script src="./js/main.js" defer></script>
 </head>
 <body>
 
   <header>
     <h1>Tienda de Ropa</h1>
-    <!-- Banner de aviso asincrono con setTimeout -->
-    <div id="banner-aviso" class="banner-aviso oculto"></div>
   </header>
 
   <main class="contenedor-principal">
     
-    <!-- Formulario para agregar producto -->
+    <!-- Formulario para agregar productos -->
     <section class="seccion-formulario">
       <h2>Agregar Producto</h2>
       <form id="formulario-producto">
@@ -38,11 +44,9 @@
 
         <button type="submit" id="btn-agregar">+ Agregar Producto</button>
       </form>
-
-      <p id="mensaje-feedback" class="mensaje"></p>
     </section>
 
-    <!-- Seccion del catalogo -->
+    <!-- Catalogo y busqueda -->
     <section class="seccion-catalogo">
       <div class="barra-busqueda">
         <label for="buscador">Buscar producto:</label>
@@ -51,7 +55,7 @@
 
       <h2>Catálogo de Productos</h2>
 
-      <!-- Estado de carga mientras se resuelve la promesa -->
+      <!-- Mensaje de carga mientras resuelve el fetch -->
       <p id="texto-cargando" class="texto-cargando">Cargando productos...</p>
 
       <div id="contenedor-productos" class="grilla-productos">

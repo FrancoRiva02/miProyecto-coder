@@ -17,27 +17,12 @@ header {
   text-align: center;
 }
 
-/* Banner de setTimeout */
-.banner-aviso {
-  background-color: #f39c12;
-  color: #ffffff;
-  padding: 10px;
-  margin-top: 10px;
-  font-weight: bold;
-  border-radius: 4px;
-}
-
-.oculto {
-  display: none;
-}
-
 .contenedor-principal {
   max-width: 900px;
   margin: 30px auto;
   padding: 0 15px;
 }
 
-/* Formulario */
 .seccion-formulario {
   background-color: #ffffff;
   padding: 20px;
@@ -96,22 +81,6 @@ button:hover {
   background-color: #219150;
 }
 
-/* Feedback */
-.mensaje {
-  margin-top: 12px;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.mensaje.exito {
-  color: #27ae60;
-}
-
-.mensaje.error {
-  color: #e74c3c;
-}
-
-/* Buscador y estado de carga */
 .barra-busqueda {
   margin-bottom: 20px;
   display: flex;
@@ -141,7 +110,6 @@ button:hover {
   gap: 15px;
 }
 
-/* Tarjeta de producto */
 .tarjeta-producto {
   background-color: #ffffff;
   border: 1px solid #e0e0e0;
